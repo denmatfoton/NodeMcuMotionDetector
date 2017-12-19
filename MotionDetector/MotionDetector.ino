@@ -41,63 +41,63 @@ void initWifi()
 
 void checkMQTTConnection()
 {
-	if (!client.connected())
-	{
-		if (WiFi.status() == WL_CONNECTED) {
-			Serial.print("new connection: ");
-			if (client.connect(CLIENT_NAME, MQTT_USER, MQTT_PASSWORD))
-			{
-				Serial.println("connected");
-				client.subscribe(cmdHallwayTopic);
+    if (!client.connected())
+    {
+        if (WiFi.status() == WL_CONNECTED) {
+            Serial.print("new connection: ");
+            if (client.connect(CLIENT_NAME, MQTT_USER, MQTT_PASSWORD))
+            {
+                Serial.println("connected");
+                client.subscribe(cmdHallwayTopic);
                 client.subscribe(cmdOutsideTopic);
                 client.subscribe(cmdEnterTopic);
-			}
-			else
-			{
-				Serial.print("failed, rc=");
-				Serial.println(client.state());
-			}
-		}
-		else
-		{
-			Serial.println(" Not connected to WiFI AP, abandoned connect.");
-		}
-	}
+            }
+            else
+            {
+                Serial.print("failed, rc=");
+                Serial.println(client.state());
+            }
+        }
+        else
+        {
+            Serial.println("Not connected to WiFI AP, abandoned connect.");
+        }
+    }
 }
 
 
 void MQTTcallback(char* topic, byte* payload, unsigned int length)
 {
-	Serial.print("Message arrived [");
-	Serial.print(topic);
-	Serial.print("] ");
+    Serial.print("Message arrived [");
+    Serial.print(topic);
+    Serial.print("] ");
 
-	if (length < MAX_PAYLOAD_LENGTH)
-	{
-		static char tempPayload[MAX_PAYLOAD_LENGTH];
-		memcpy(tempPayload, payload, length);
-		tempPayload[length] = '\0';
-		Serial.println(tempPayload);
-		ProcessMqttPayload(topic, tempPayload);
-	}
+    if (length < MAX_PAYLOAD_LENGTH)
+    {
+        static char tempPayload[MAX_PAYLOAD_LENGTH];
+        memcpy(tempPayload, payload, length);
+        tempPayload[length] = '\0';
+        Serial.println(tempPayload);
+        ProcessMqttPayload(topic, tempPayload);
+    }
 }
 
 
 void setup()
 {
-	Serial.begin(115200);
-	Serial.println("Initialising");
+    Serial.begin(115200);
+    Serial.println("Initialising");
 
-	initWifi();
+    initWifi();
 
-	client.setServer(MQTT_SERVER, MQTT_PORT);
-	client.setCallback(MQTTcallback);
+    client.setServer(MQTT_SERVER, MQTT_PORT);
+    client.setCallback(MQTTcallback);
 
-	//OTA setup
-	ArduinoOTA.setPort(OTA_PORT);
-	ArduinoOTA.setHostname(CLIENT_NAME);
-	ArduinoOTA.setPassword(OTA_PASS);
-	ArduinoOTA.begin();
+    //OTA setup
+    ArduinoOTA.setPort(OTA_PORT);
+    ArduinoOTA.setHostname(CLIENT_NAME);
+    ArduinoOTA.setPassword(OTA_PASS);
+    ArduinoOTA.begin();
 
     dht11.initialize();
 }
@@ -105,17 +105,17 @@ void setup()
 
 void loop()
 {
-	if (millis() - lastMQTTCheck >= 5000)
-	{
-		checkMQTTConnection();
-		lastMQTTCheck = millis();
-	}
+    if (millis() - lastMQTTCheck >= 5000)
+    {
+        checkMQTTConnection();
+        lastMQTTCheck = millis();
+    }
 
-	//Handle any pending MQTT messages
-	client.loop();
+    //Handle any pending MQTT messages
+    client.loop();
 
-	//Handle any pending OTA SW updates
-	ArduinoOTA.handle();
+    //Handle any pending OTA SW updates
+    ArduinoOTA.handle();
 
     if (millis() - lastTemperatureMessage > TEMPERATURE_MSG_PERIOD)
     {
@@ -123,11 +123,11 @@ void loop()
         lastTemperatureMessage = millis();
     }
 
-	delay(500);
+    delay(500);
 }
 
 
 void SendMqtt(const char* topic, const char* response)
 {
-	client.publish(topic, response);
+    client.publish(topic, response);
 }
